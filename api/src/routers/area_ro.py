@@ -12,7 +12,6 @@ router = APIRouter(
 
 get_db = database.get_db
 
-@router.get("/", response_model=AreaSchema)
+@router.get("", response_model=AreaSchema)
 def getArea(db: Session=Depends(get_db)):
     return "Area!"
-

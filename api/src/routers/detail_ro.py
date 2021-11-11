@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from src.schemas.detail_sc import DetailSchema, CustomerSchema, SalesSchema, FutureSchema
 
 from src import database
 
@@ -11,6 +12,18 @@ router = APIRouter(
 
 get_db = database.get_db
 
-@router.get("/")
-def temp(db: Session=Depends(get_db)):
+@router.get("/", response_model=DetailSchema)
+def getDetail(db: Session=Depends(get_db)):
+    return "Detail!"
+
+@router.get("/sales", response_model=SalesSchema)
+def getSales(db: Session=Depends(get_db)):
+    return "Detail!"
+
+@router.get("/customer", response_model=CustomerSchema)
+def getCustomer(db: Session=Depends(get_db)):
+    return "Detail!"
+
+@router.get("/future", response_model=FutureSchema)
+def getFuture(db: Session=Depends(get_db)):
     return "Detail!"
