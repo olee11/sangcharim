@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from src.schemas.map_sc import MapCloseSchema, MapFarSchema
 
 from src import database
 
@@ -11,6 +12,10 @@ router = APIRouter(
 
 get_db = database.get_db
 
-@router.get("/")
-def temp(db: Session=Depends(get_db)):
+@router.get("/far", response_model=MapFarSchema)
+def getFarMap(db: Session=Depends(get_db)):
     return "Map!"
+
+@router.get("/close", response_model=MapCloseSchema)
+def getCloseMap(db: Session=Depends(get_db)):
+    return "Close"
