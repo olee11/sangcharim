@@ -158,6 +158,19 @@ def create_sales():
                                                 time1721=int(u['TMZON_17_21_SELNG_RATE']),
                                                 time2124=int(u['TMZON_21_24_SELNG_RATE']))
                 db.add(db_timesales)
+
+                # 고객 매출 비율
+                db_custommersales = models.CustomerSales(salesId=cnt,
+                                                        man=int(u['ML_SELNG_RATE']),
+                                                        woman=int(u['FML_SELNG_RATE']),
+                                                        age10=int(u['AGRDE_10_SELNG_RATE']),
+                                                        age20=int(u['AGRDE_20_SELNG_RATE']),
+                                                        age30=int(u['AGRDE_30_SELNG_RATE']),
+                                                        age40=int(u['AGRDE_40_SELNG_RATE']),
+                                                        age50=int(u['AGRDE_50_SELNG_RATE']),
+                                                        age60=int(u['AGRDE_60_ABOVE_SELNG_RATE']))  # 60대 이상
+                db.add(db_custommersales)
+                
             db.commit()
 
 
