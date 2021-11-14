@@ -45,6 +45,7 @@ def create_area():
                 db.add(db_area)
 
         db.commit()
+        
 
 # 노원구 업종 db 저장
 def create_business():
@@ -111,6 +112,7 @@ def create_sales():
     for area_code in area_code_db:
         area_codes.append(area_code[0])
 
+    cnt = 0  # 요일별 매출 데이터 id값
     for i in range(1, math.ceil(total_cnt/1000)+1):
         end = i * 1000
         start = end - 1000 + 1
@@ -127,15 +129,33 @@ def create_sales():
 
         for u in jsonObj['row']:
             if int(u['TRDAR_CD']) in area_codes and int(u['STOR_CO']) != 0:
+                # 분기당 평균 매출
                 db_sales = models.Sales(areaCode=u['TRDAR_CD'], # 상권_코드
                                         businessCode=u['SVC_INDUTY_CD'][2:], # 업종_코드
                                         amount=int(int(u['THSMON_SELNG_AMT'])/int(u['STOR_CO']))) # 분기당_평균_매출
                 db.add(db_sales)
+                db.commit()
+                cnt += 1
+                print(cnt)
 
-        db.commit()
+                # 요일별 매출 비율
+                db_daysales = models.DaySales(salesId=cnt,
+                                                mondayRatio=int(u['MON_SELNG_RATE']),
+                                                tuesdayRatio=int(u['TUES_SELNG_RATE']),
+                                                wednesdayRatio=int(u['WED_SELNG_RATE']),
+                                                thursdayRatio=int(u['THUR_SELNG_RATE']),
+                                                fridayRatio=int(u['FRI_SELNG_RATE']),
+                                                saturdayRatio=int(u['SAT_SELNG_RATE']),
+                                                sundayRatio=int(u['SUN_SELNG_RATE']))
+                db.add(db_daysales)
+                print("저장완료")
+            db.commit()
+
+
+
 
 
 if __name__ == '__main__':
-    create_area()
-    create_business()
+    # create_area()
+    # create_business()
     create_sales()
