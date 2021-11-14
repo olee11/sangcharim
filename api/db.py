@@ -92,7 +92,50 @@ def create_business():
 
     db.commit()
 
+# 노원구 매출영역 db저장
+def create_sales():
+    sales_url = f"http://openapi.seoul.go.kr:8088/{key}/xml/VwsmTrdarSelngQq/1/5/2020"
+
+    content = requests.get(sales_url).content
+    dict = xmltodict.parse(content)
+    jsonString = json.dumps(dict['VwsmTrdarSelngQq'], ensure_ascii=False)
+    jsonObj = json.loads(jsonString)
+
+    # 매출 데이터 총 개수
+    total_cnt = int(jsonObj['list_total_count'])
+    print(total_cnt)
+
+    # 노원구 상권코드 리스트
+    area_code_db = db.query(Area.areaCode)
+    area_codes = []
+    for area_code in area_code_db:
+        area_codes.append(area_code[0])
+
+    for i in range(1, math.ceil(total_cnt/1000)+1):
+        end = i * 1000
+        start = end - 1000 + 1
+        if end > total_cnt:
+            end = total_cnt
+
+        # openapi
+        area_url = f"http://openapi.seoul.go.kr:8088/{key}/xml/VwsmTrdarSelngQq/{start}/{end}/2020"
+
+        content = requests.get(area_url).content
+        dict = xmltodict.parse(content)
+        jsonString = json.dumps(dict['VwsmTrdarSelngQq'], ensure_ascii=False)
+        jsonObj = json.loads(jsonString)
+
+        for u in jsonObj['row']:
+            if int(u['TRDAR_CD']) in area_codes and int(u['STOR_CO']) != 0:
+                db_sales = models.Sales(areaCode=u['TRDAR_CD'], # 상권_코드
+                                        businessCode=u['SVC_INDUTY_CD'][2:], # 업종_코드
+                                        amount=int(int(u['THSMON_SELNG_AMT'])/int(u['STOR_CO']))) # 분기당_평균_매출
+                db.add(db_sales)
+
+        db.commit()
+
 
 if __name__ == '__main__':
-    # create_area()
+    create_area()
     create_business()
+    create_sales()
