@@ -120,9 +120,9 @@ def create_sales():
             end = total_cnt
 
         # openapi
-        area_url = f"http://openapi.seoul.go.kr:8088/{key}/xml/VwsmTrdarSelngQq/{start}/{end}/2020"
+        sales_url = f"http://openapi.seoul.go.kr:8088/{key}/xml/VwsmTrdarSelngQq/{start}/{end}/2020"
 
-        content = requests.get(area_url).content
+        content = requests.get(sales_url).content
         dict = xmltodict.parse(content)
         jsonString = json.dumps(dict['VwsmTrdarSelngQq'], ensure_ascii=False)
         jsonObj = json.loads(jsonString)
@@ -148,11 +148,17 @@ def create_sales():
                                                 saturdayRatio=int(u['SAT_SELNG_RATE']),
                                                 sundayRatio=int(u['SUN_SELNG_RATE']))
                 db.add(db_daysales)
-                print("저장완료")
+                
+                # 시간대별 매출 비율
+                db_timesales = models.TimeSales(salesId=cnt,
+                                                time0006=int(u['TMZON_00_06_SELNG_RATE']),
+                                                time0611=int(u['TMZON_06_11_SELNG_RATE']),
+                                                time1114=int(u['TMZON_11_14_SELNG_RATE']),
+                                                time1417=int(u['TMZON_14_17_SELNG_RATE']),
+                                                time1721=int(u['TMZON_17_21_SELNG_RATE']),
+                                                time2124=int(u['TMZON_21_24_SELNG_RATE']))
+                db.add(db_timesales)
             db.commit()
-
-
-
 
 
 if __name__ == '__main__':
