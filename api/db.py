@@ -1,11 +1,14 @@
 from src.database import SessionLocal
 from src import models
 import requests, xmltodict, json, math
-from config import key
 from src.models import *
 from sqlalchemy import select
+import os
 
 db = SessionLocal()
+
+# 환경변수 key값 가져오기
+key = os.getenv('KEY')
 
 # 노원구 상권영역 db저장
 # rValue값 구하기?
@@ -219,13 +222,16 @@ def create_sales():
                                                         age60=int(u['AGRDE_60_ABOVE_SELNG_RATE']))  # 60대 이상 매출 비율
                 db.add(db_custommersales)
 
-    print(f"총 {cnt}개를 찾았습니다.")
+    # print(f"총 {cnt}개를 찾았습니다.")
     db.commit()
     print("데이터 저장 완료!")
 
+def create_store():
+    pass
 
-if __name__ == '__main__':
+
+# if __name__ == '__main__':
     # create_area()
     # create_business()
-    create_change()
+    # create_change()
     # create_sales()
