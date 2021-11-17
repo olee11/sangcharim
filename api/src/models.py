@@ -12,7 +12,7 @@ class Area(Base):
     longitude = Column("longitude", Float)
     areaCategory = Column("area_category", String(10))
     status = Column('status', Integer)
-    
+
     
 class Businesss(Base):
     __tablename__ = "BUSINESS_TB"
