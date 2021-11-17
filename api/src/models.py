@@ -9,13 +9,14 @@ class Area(Base):
     areaName = Column("area_name", String(20))
     latitude = Column("latitude", Float)
     longitude = Column("longitude", Float)
-    rValue = Column("r_value", Integer)
+    areaCateory = Column("business_category", String(10))
     
 class Businesss(Base):
     __tablename__ = "BUSINESS_TB"
     
     businessCode = Column("business_code", Integer, primary_key=True)
     businessName = Column("business_name", String(20))
+    businesssCategory = Column("business_category", String(10))
     
 class Store(Base):
     __tablename__ = "STORE_TB"
