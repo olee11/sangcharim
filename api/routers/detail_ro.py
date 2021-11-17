@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from src.schemas.detail_sc import DetailSchema, CustomerSchema, SalesSchema, FutureSchema
+from api.schemas.detail_sc import DetailSchema, CustomerSchema, SalesSchema, FutureSchema
 
-from src import database
+from api import database
 
 router = APIRouter(
     prefix="/detail",

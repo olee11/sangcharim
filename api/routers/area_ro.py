@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from src.schemas.area_sc import AreaSchema
+from api.schemas.area_sc import AreaSchema
 
-from src import database
+from api import database
 
 router = APIRouter(
     prefix="/area",

@@ -1,8 +1,8 @@
 from typing import List, Optional
 from pydantic import BaseModel
-from src.models import Businesss
+from api.models import Businesss
 
-from src.schemas import area_sc, map_sc
+from api.schemas import area_sc, map_sc
 
 # 상대업종률
 class DetailBusiness(BaseModel):
