@@ -1,7 +1,7 @@
-from src.database import SessionLocal
-from src import models
+from database import SessionLocal
+import models
 import requests, xmltodict, json, math
-from src.models import *
+from models import *
 from sqlalchemy import select
 import os
 

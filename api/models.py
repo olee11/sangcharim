@@ -1,5 +1,5 @@
 from sqlalchemy.sql.schema import ForeignKey
-from src.database import Base
+from api.database import Base
 from sqlalchemy import Column, Integer, String, Float
 
 

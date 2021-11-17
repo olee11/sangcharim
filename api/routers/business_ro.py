@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from src.schemas.business_sc import BusinessSchema
+from api.schemas.business_sc import BusinessSchema
 
-from src import database
+from api import database
 
 router = APIRouter(
     prefix="/business",

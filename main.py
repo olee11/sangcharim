@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.middleware.cors import CORSMiddleware
 
-from src import models, database
-from src.routers import area_ro, business_ro, map_ro, detail_ro
+from api import models, database
+from api.routers import area_ro, business_ro, map_ro, detail_ro
 
 app = FastAPI(
     title="SW SangChaRim API",
@@ -14,13 +14,13 @@ app = FastAPI(
     }
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["GET"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["GET"],
+#     allow_headers=["*"],
+# )
 
 @app.get('/')
 def Index():
@@ -31,9 +31,6 @@ app.include_router(area_ro.router)
 app.include_router(business_ro.router)
 app.include_router(map_ro.router)
 app.include_router(detail_ro.router)
-
-
-
 
 # DB init
 models.Base.metadata.create_all(database.engine)

@@ -1,6 +1,6 @@
 uvicorn
 fastapi
 sqlalchemy
-mariadb
+psycopg2-binary
 requests
 xmltodict

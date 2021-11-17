@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from src.schemas.map_sc import MapCloseSchema, MapFarSchema
+from api.schemas.map_sc import MapCloseSchema, MapFarSchema
 
-from src import database
+from api import database
 
 router = APIRouter(
     prefix="/map",
