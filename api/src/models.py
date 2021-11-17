@@ -2,6 +2,7 @@ from sqlalchemy.sql.schema import ForeignKey
 from src.database import Base
 from sqlalchemy import Column, Integer, String, Float
 
+
 class Area(Base):
     __tablename__ = "AREA_TB"
     
@@ -9,7 +10,9 @@ class Area(Base):
     areaName = Column("area_name", String(20))
     latitude = Column("latitude", Float)
     longitude = Column("longitude", Float)
-    areaCateory = Column("area_category", String(10))
+    areaCategory = Column("area_category", String(10))
+    status = Column('status', Integer)
+
     
 class Businesss(Base):
     __tablename__ = "BUSINESS_TB"
@@ -17,6 +20,7 @@ class Businesss(Base):
     businessCode = Column("business_code", Integer, primary_key=True)
     businessName = Column("business_name", String(20))
     businesssCategory = Column("business_category", String(10))
+    
     
 class Store(Base):
     __tablename__ = "STORE_TB"
@@ -28,14 +32,15 @@ class Store(Base):
     latitude = Column("latitude", Float)
     longitude = Column("longitude", Float)
     
+    
 class Change(Base):
     __tablename__ = "CHANGE_TB"
     
     id = Column("id", Integer, primary_key=True, index=True)
     areaCode = Column("area_code_fk", Integer, ForeignKey('AREA_TB.area_code'))
     businessCode = Column("business_code_fk", Integer, ForeignKey('BUSINESS_TB.business_code'))
-    status = Column("status", String(10))
     closure = Column("closure", Float)
+    
     
 class Sales(Base):
     __tablename__ = "SALES_TB"
@@ -44,6 +49,7 @@ class Sales(Base):
     areaCode = Column("area_code_fk", Integer, ForeignKey('AREA_TB.area_code'))
     businessCode = Column("business_code_fk", Integer, ForeignKey('BUSINESS_TB.business_code'))
     amount = Column("amount", Integer)
+    
     
 class DaySales(Base):
     __tablename__ = "DAYSALES_TB"
@@ -58,8 +64,8 @@ class DaySales(Base):
     saturdayRatio = Column("saturday_ratio", Integer)
     sundayRatio = Column("sunday_ratio", Integer)
     
+    
 class TimeSales(Base):
-    # __tablename__ = "timeSales"
     __tablename__ = "TIMESALES_TB"
     
     id = Column("id", Integer, primary_key=True, index=True)
@@ -71,8 +77,8 @@ class TimeSales(Base):
     time1721 = Column("time_1721", Integer)
     time2124 = Column("time_2124", Integer)
     
+
 class CustomerSales(Base):
-    # __tablename__ = "custommerSales"
     __tablename__ = "CUSTOMMERSALES_TB"
     
     id = Column("id", Integer, primary_key=True, index=True)
