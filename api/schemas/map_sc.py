@@ -4,8 +4,8 @@ from pydantic import BaseModel
 # 먼 지도
 class AreaList(BaseModel):
     areaCode: int
-    lat: int
-    long: int
+    lat: float
+    long: float
     businessCount: int
 
 class MapFarSchema(BaseModel):
