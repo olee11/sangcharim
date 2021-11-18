@@ -1,5 +1,5 @@
 from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from api.schemas import map_sc
 from api import models
@@ -69,6 +69,42 @@ def getFarMap(areaCode: Optional[int]=None, businessCode1: Optional[int]=None, b
         areaList = result,
     )
 
-@router.get("/close", response_model=map_sc.MapCloseSchema)
-def getCloseMap(db: Session=Depends(get_db)):
-    return "Close"
+@router.get("/close", response_model=List[map_sc.MapCloseSchema])
+def getCloseMap(areaCode: Optional[int]=None, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
+    """
+    `완료`\n
+    **areaCode**가 있으면 그 상권의 가게만 나옴\n
+    **businessCode1~3**이 있으면 해당 업종의 가게만 나옴\n
+    `name`          : 가게 이름\n
+    `lat`           : 가게 위도\n
+    `long`          : 가게 경도\n
+    `areaCode`      : 가게의 상권 코드\n
+    `areaName`      : 가게의 상권명\n
+    `businessCode`  : 가게의 업종 코드\n
+    `busniessName`  : 가게의 업종명\n
+    """
+    storeList = db.query(models.Store)
+    
+    if areaCode:
+        storeList = storeList.filter(models.Store.areaCode == areaCode)
+    
+    resultStoreList: list[models.Store] = []
+    
+    if (businessCode1 or businessCode2 or businessCode3):
+        for businessCode in (businessCode1, businessCode2, businessCode3):
+            if businessCode:
+                resultStoreList += storeList.filter(models.Store.businessCode == businessCode).all()
+    else:
+        resultStoreList = storeList.all()
+    
+    return [
+        map_sc.MapCloseSchema(
+            name = store.storeName,
+            lat = store.latitude,
+            long = store.longitude,
+            areaCode = store.areaCode,
+            areaName = db.query(models.Area).filter(models.Area.areaCode == store.areaCode).first().areaName,
+            businessCode = store.businessCode,
+            businessName = db.query(models.Businesss).filter(models.Businesss.businessCode == store.businessCode).first().businessName,
+        ) for store in resultStoreList
+    ]

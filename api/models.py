@@ -26,7 +26,7 @@ class Store(Base):
     __tablename__ = "STORE_TB"
     
     id = Column("id", Integer, primary_key=True, index=True)
-    sotreName = Column("sotre_name", String(20))
+    storeName = Column("store_name", String(20))
     areaCode = Column("area_code_fk", Integer, ForeignKey('AREA_TB.area_code'))
     businessCode = Column("business_code_fk", Integer, ForeignKey('BUSINESS_TB.business_code'))
     latitude = Column("latitude", Float)
