@@ -83,12 +83,15 @@ def getCloseMap(areaCode: Optional[int]=None, businessCode1: Optional[int]=None,
     `businessCode`  : 가게의 업종 코드\n
     `busniessName`  : 가게의 업종명\n
     """
-    storeList = db.query(models.Store)
+    # storeList = db.query(models.Store)
+    storeList = db.query(models.Store, models.Area, models.Businesss)\
+        .filter(models.Store.areaCode == models.Area.areaCode)\
+        .filter(models.Store.businessCode == models.Businesss.businessCode)
     
     if areaCode:
         storeList = storeList.filter(models.Store.areaCode == areaCode)
     
-    resultStoreList: list[models.Store] = []
+    resultStoreList = []
     
     if (businessCode1 or businessCode2 or businessCode3):
         for businessCode in (businessCode1, businessCode2, businessCode3):
@@ -99,12 +102,12 @@ def getCloseMap(areaCode: Optional[int]=None, businessCode1: Optional[int]=None,
     
     return [
         map_sc.MapCloseSchema(
-            name = store.storeName,
-            lat = store.latitude,
-            long = store.longitude,
-            areaCode = store.areaCode,
-            areaName = db.query(models.Area).filter(models.Area.areaCode == store.areaCode).first().areaName,
-            businessCode = store.businessCode,
-            businessName = db.query(models.Businesss).filter(models.Businesss.businessCode == store.businessCode).first().businessName,
+            name = store[0].storeName,
+            lat = store[0].latitude,
+            long = store[0].longitude,
+            areaCode = store[0].areaCode,
+            areaName = store[1].areaName,
+            businessCode = store[0].businessCode,
+            businessName = store[2].businessName,
         ) for store in resultStoreList
     ]
