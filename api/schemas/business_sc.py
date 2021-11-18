@@ -1,9 +1,11 @@
+from typing import List
 from pydantic import BaseModel
 
 # 업종
-class BusinessSchema(BaseModel):
+class Business(BaseModel):
     businessCode: int
     businessName: str
     
-    class Config():
-        orm_mode = True
+class BusinessSchema(BaseModel):
+    businessCategory: str
+    businessList: List[Business]
