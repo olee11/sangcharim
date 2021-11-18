@@ -1,9 +1,12 @@
+from typing import List
 from pydantic import BaseModel
 
 # 상권
-class AreaSchema(BaseModel):
+class Area(BaseModel):
     areaCode: int
     areaName: str
-    
-    class Config():
-        orm_mode = True
+
+
+class AreaSchema(BaseModel):
+    areaCategory: str
+    areaList: List[Area]
