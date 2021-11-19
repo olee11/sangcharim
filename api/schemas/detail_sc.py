@@ -8,12 +8,11 @@ from api.schemas import area_sc, map_sc
 class DetailBusiness(BaseModel):
     businessCode: int
     businessName: str
-    businessRel: float
+    businessCount: int
 
 class DetailSchema(BaseModel):
-    area: area_sc.AreaSchema
-    bestBusinesss: List[map_sc.BusinessCount]
-    Businesss: List[DetailBusiness]
+    area: area_sc.Area
+    business: List[DetailBusiness]
 
 # 매출
 class Sales(BaseModel):
