@@ -81,12 +81,12 @@ def getSales(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Op
     `area`          : 선택한 상권 정보\n
     `sales`         : 상권의 매출 최소, 최대, 평균\n
     `day`           : 상권의 요일별 평균 매출비율\n
-    `time`          : 상권의 시간대별 평균 매출비율\nv
+    `time`          : 상권의 시간대별 평균 매출비율\n
     `businessList`  : 선택한 업종의 정보\n
     `businessSale`  : 업종 매출액\n
     `businessDay`   : 업종의 요일별 매출비율\n
-    `businessTime`  : 업종의 시간대별 매출비율\nㄴ
-    -> businessCode1~3가 None이면 : []
+    `businessTime`  : 업종의 시간대별 매출비율\n
+    -> businessCode1~3가 None이면 : []\n
     -> businessCode1~3에 값이 있으면 : 만약 해당 상권에 해당 업종이 없으면 추가 되지 않음.
     """
     # 상권
