@@ -281,7 +281,6 @@ def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2:
                 )
             )   
 
-
     return detail_sc.CustomerSchema(
         area = area_sc.Area(
             areaCode = area.areaCode,
@@ -301,7 +300,6 @@ def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2:
         ),
         business = resultCustomerList
     )
-    return "detail"
 
 @router.get("/future", response_model=detail_sc.FutureSchema)
 def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
