@@ -12,44 +12,44 @@ class DetailBusiness(BaseModel):
 
 class DetailSchema(BaseModel):
     area: area_sc.Area
-    business: List[DetailBusiness]
+    businessList: List[DetailBusiness]
 
 # 매출
 class Sales(BaseModel):
     min: int
     max: int
-    avg: int
+    avg: float
 
 class Day(BaseModel):
-    mon: int
-    tue: int
-    wed: int
-    thu: int
-    fri: int
-    sat: int
-    sun: int
+    mon: Optional[int]=0
+    tue: Optional[int]=0
+    wed: Optional[int]=0
+    thu: Optional[int]=0
+    fri: Optional[int]=0
+    sat: Optional[int]=0
+    sun: Optional[int]=0
     
 class Time(BaseModel):
-    time0006: int
-    time0611: int
-    time1114: int
-    time1417: int
-    time1721: int
-    time2124: int
+    time0006: Optional[int]=0
+    time0611: Optional[int]=0
+    time1114: Optional[int]=0
+    time1417: Optional[int]=0
+    time1721: Optional[int]=0
+    time2124: Optional[int]=0
 
 class SalesBusiness(BaseModel):
     businessCode: int
     businessName: str
-    businessSales: Sales
+    businessSale: int
     businessDay: Day
     businessTime: Time
 
 class SalesSchema(BaseModel):
-    area: area_sc.AreaSchema
+    area: area_sc.Area
     sales: Sales
     day: Day
     time: Time
-    business: List[SalesBusiness]
+    businessList: List[SalesBusiness]
     
 # 주 고객층
 class CustomerGenderRatio(BaseModel):
