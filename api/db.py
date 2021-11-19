@@ -1,9 +1,10 @@
-from database import SessionLocal
-import models
+from api.database import SessionLocal
+from api import models
 import requests, xmltodict, json, math
-from models import *
+from api.models import *
 from sqlalchemy import select
 import os
+import csv
 
 db = SessionLocal()
 
@@ -49,6 +50,55 @@ def create_area():
                 db.add(db_area)
 
     db.commit()
+    print("데이터 저장 완료!")
+
+# area테이블 status 추가
+def add_status():
+    status_url = f"http://openapi.seoul.go.kr:8088/{key}/xml/VwsmTrdarIxQq/1/5/2021"
+
+    content = requests.get(status_url).content
+    dict = xmltodict.parse(content)
+    jsonString = json.dumps(dict['VwsmTrdarIxQq'], ensure_ascii=False)
+    jsonObj = json.loads(jsonString)
+
+    # 상권변화지표 데이터 총 개수
+    total_cnt = int(jsonObj['list_total_count'])
+
+    # 노원구 상권코드 리스트
+    area_code_db = db.query(Area.areaCode)
+    area_codes = []
+    for area_code in area_code_db:
+        area_codes.append(area_code[0])
+
+    print("노원구 상권변화지표의 데이터를 찾고있습니다...")
+    area_status = {}
+    for i in range(1, math.ceil(total_cnt/1000)+1):
+        end = i * 1000
+        start = end - 1000 + 1
+        if end > total_cnt:
+            end = total_cnt
+
+        # openapi
+        status_url = f"http://openapi.seoul.go.kr:8088/{key}/xml/VwsmTrdarIxQq/{start}/{end}/2021"
+
+        content = requests.get(status_url).content
+        dict = xmltodict.parse(content)
+        jsonString = json.dumps(dict['VwsmTrdarIxQq'], ensure_ascii=False)
+        jsonObj = json.loads(jsonString)
+
+        for u in jsonObj['row']:
+            if int(u['TRDAR_CD']) in area_codes:
+                if u['TRDAR_CHNGE_IX'] == 'HH':
+                    status_code = 1  # 정체
+                elif u['TRDAR_CHNGE_IX'] == 'HL':
+                    status_code = 2  # 상권축소
+                elif u['TRDAR_CHNGE_IX'] == 'LH':
+                    status_code = 3  # 상권확장
+                elif u['TRDAR_CHNGE_IX'] == 'LL':
+                    status_code = 1  # 다이나믹                
+                area = db.query(Area).filter(Area.areaCode == int(u['TRDAR_CD'])).first()
+                area.status = status_code
+                db.commit()
     print("데이터 저장 완료!")
         
 
@@ -227,11 +277,26 @@ def create_sales():
     print("데이터 저장 완료!")
 
 def create_store():
-    pass
+    f = open('nowon_store2.csv', 'r', encoding='cp949')
+    rdr = csv.reader(f)
+    for line in rdr:
+        if line[0] != '상호명':
+            print(line[0])
+            db_store = models.Store(sotreName=line[0],
+                                    areaCode=int(line[3]),
+                                    businessCode=int(line[1]),
+                                    latitude=float(line[6]),
+                                    longitude=float(line[5]))
+            db.add(db_store)
+    db.commit()
+    f.close()
+    
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     # create_area()
+    # add_status()
     # create_business()
     # create_change()
     # create_sales()
+    create_store()

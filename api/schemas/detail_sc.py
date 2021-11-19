@@ -12,7 +12,7 @@ class DetailBusiness(BaseModel):
 
 class DetailSchema(BaseModel):
     area: area_sc.AreaSchema
-    bestBusinesss: List[map_sc.BusinessCount]
+    # bestBusinesss: List[map_sc.BusinessCount]
     Businesss: List[DetailBusiness]
 
 # 매출
@@ -84,7 +84,7 @@ class FutureBusiness(BaseModel):
     businessClosure: float
 
 class FutureSchema(BaseModel):
-    area: area_sc.AreaSchema
+    area: area_sc.Area
     areaSituation: str
     areaClosure: float
     business: List[FutureBusiness]
