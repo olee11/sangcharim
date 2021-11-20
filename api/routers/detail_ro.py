@@ -201,5 +201,43 @@ def getCustomer(db: Session=Depends(get_db)):
     return "Detail!"
 
 @router.get("/future", response_model=detail_sc.FutureSchema)
-def getFuture(db: Session=Depends(get_db)):
-    return "Detail!"
+def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
+    area = db.query(models.Area).filter(models.Area.areaCode == areaCode).first()
+
+    resultFutureList: list[detail_sc.FutureBusiness] = []
+
+    # 선택 업종이 없는 경우  
+    # 상권내 전체 점포 폐업률의 합/전체점포 
+    change_sum = 0
+    change_cnt = 0
+    changeList = db.query(models.Change).filter(models.Change.areaCode == areaCode)
+    for change in changeList:
+        change_sum += change.closure
+        change_cnt += 1
+    area_closure = int(change_sum / change_cnt)
+
+    # 선택 업종이 있는 경우
+    if businessCode1 or businessCode2 or businessCode3: 
+        for businessCode in (businessCode1, businessCode2, businessCode3):
+            if not businessCode:
+                continue            
+            closure = db.query(models.Change).filter(models.Change.areaCode == areaCode) \
+                                                    .filter(models.Change.businessCode == businessCode).first()
+
+            resultFutureList.append(
+                detail_sc.FutureBusiness(
+                    businessCode = businessCode,
+                    businessName = db.query(models.Businesss).filter(models.Businesss.businessCode == businessCode).first().businessName,
+                    businessClosure = closure.closure
+                )
+            )
+
+    return detail_sc.FutureSchema(
+        area = area_sc.Area(
+            areaCode = area.areaCode,
+            areaName = area.areaName,
+        ),
+        areaSituation = area.status,
+        areaClosure = area_closure,
+        business = resultFutureList
+    )
