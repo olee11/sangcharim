@@ -71,7 +71,7 @@ class CustomerBusiness(BaseModel):
     businessAge: CustomerAgeRatio
 
 class CustomerSchema(BaseModel):
-    area: area_sc.AreaSchema
+    area: area_sc.Area
     genderRatio: CustomerGenderRatio
     ageRatio: CustomerAgeRatio
     business: List[CustomerBusiness]

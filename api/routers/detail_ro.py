@@ -196,9 +196,110 @@ def getSales(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Op
         businessList = resultBusinessList
     )
 
-@router.get("/customer", response_model=detail_sc.CustomerSchema)
-def getCustomer(db: Session=Depends(get_db)):
-    return "Detail!"
+@router.get("/customer")
+def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
+    area = db.query(models.Area).filter(models.Area.areaCode == areaCode).first()
+
+    resultCustomerList: list[detail_sc.CustomerBusiness] = []
+
+    sales = db.query(models.Sales).filter(models.Sales.areaCode == areaCode)
+    salesIdList = []
+    for sale in sales:
+        salesIdList.append(sale.id)
+
+    customers = db.query(models.CustomerSales).filter(models.CustomerSales.salesId.in_(salesIdList))
+
+    # 선택 업종이 없는 경우
+    # 남여 비율 계산하기
+    man_sum = woman_sum = 0
+    for customer in customers:
+        man_sum += customer.man
+        woman_sum += customer.woman
+
+    man_ratio = round(man_sum/len(salesIdList) * (100/((man_sum/len(salesIdList)) + woman_sum/len(salesIdList))))
+    woman_ratio = round(woman_sum/len(salesIdList) * (100/((man_sum/len(salesIdList)) + woman_sum/len(salesIdList))))
+
+    # 나이대별 비율 계산하기
+    age_sum_list = []
+    age10_sum = age20_sum = age30_sum = age40_sum = age50_sum = age60_sum = 0
+    for customer in customers:
+        age10_sum += customer.age10
+        age20_sum += customer.age20
+        age30_sum += customer.age30
+        age40_sum += customer.age40
+        age50_sum += customer.age50
+        age60_sum += customer.age60 
+    age_sum_list.extend([age10_sum, age20_sum, age30_sum, age40_sum, age50_sum, age60_sum])   
+    age_ratio = [] 
+    for age in age_sum_list:
+        ratio = (age/len(salesIdList)) * (100/(sum(age_sum_list)/len(salesIdList)))
+        age_ratio.append(round(ratio))
+    age10_ratio = age_ratio[0]
+    age20_ratio = age_ratio[1]
+    age30_ratio = age_ratio[2]
+    age40_ratio = age_ratio[3]
+    age50_ratio = age_ratio[4]
+    age60_ratio = age_ratio[5]
+
+    # 선택 업종이 있는 경우
+    if businessCode1 or businessCode2 or businessCode3: 
+        for businessCode in (businessCode1, businessCode2, businessCode3):
+            if not businessCode:
+                continue
+            targetSales = sales.filter(models.Sales.businessCode == businessCode).first()
+            targetCustomer = db.query(models.CustomerSales).filter(models.CustomerSales.id == targetSales.id).first()
+
+            # 업종 남녀비율 계산
+            man_ratio1 = targetCustomer.man * (100/(targetCustomer.man + targetCustomer.woman))
+            woman_ratio1 = targetCustomer.woman * (100/(targetCustomer.man + targetCustomer.woman))
+
+            # 업종 나이대별 비율 계산
+            age_sum = targetCustomer.age10 + targetCustomer.age20 + targetCustomer.age30 + targetCustomer.age40 + targetCustomer.age50 + targetCustomer.age60 
+            age10_ratio1 = targetCustomer.age10 * (100/age_sum)
+            age20_ratio1 = targetCustomer.age20 * (100/age_sum)
+            age30_ratio1 = targetCustomer.age30 * (100/age_sum)
+            age40_ratio1 = targetCustomer.age40 * (100/age_sum)
+            age50_ratio1 = targetCustomer.age50 * (100/age_sum)
+            age60_ratio1 = targetCustomer.age60 * (100/age_sum)  
+
+            resultCustomerList.append(
+                detail_sc.CustomerBusiness(
+                    businessCode = businessCode,
+                    businessName = db.query(models.Businesss).filter(models.Businesss.businessCode == businessCode).first().businessName,
+                    businessGender = detail_sc.CustomerGenderRatio(
+                        male = round(man_ratio1),
+                        female = round(woman_ratio1)
+                    ),
+                    businessAge = detail_sc.CustomerAgeRatio(
+                        age10 = round(age10_ratio1),
+                        age20 = round(age20_ratio1),
+                        age30 = round(age30_ratio1),
+                        age40 = round(age40_ratio1),
+                        age50 = round(age50_ratio1),
+                        age60 = round(age60_ratio1) 
+                    )
+                )
+            )   
+
+    return detail_sc.CustomerSchema(
+        area = area_sc.Area(
+            areaCode = area.areaCode,
+            areaName = area.areaName,
+        ),
+        genderRatio = detail_sc.CustomerGenderRatio(
+            male = man_ratio,
+            female = woman_ratio
+        ),
+        ageRatio = detail_sc.CustomerAgeRatio(
+            age10 = age10_ratio,
+            age20 = age20_ratio,
+            age30 = age30_ratio,
+            age40 = age40_ratio,
+            age50 = age50_ratio,
+            age60 = age60_ratio            
+        ),
+        business = resultCustomerList
+    )
 
 @router.get("/future", response_model=detail_sc.FutureSchema)
 def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
@@ -207,9 +308,8 @@ def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: O
     resultFutureList: list[detail_sc.FutureBusiness] = []
 
     # 선택 업종이 없는 경우  
-    # 상권내 전체 점포 폐업률의 합/전체점포 
-    change_sum = 0
-    change_cnt = 0
+    # 상권내 전체 점포 폐업률의 합/전체 점포의 수 
+    change_sum = change_cnt = 0
     changeList = db.query(models.Change).filter(models.Change.areaCode == areaCode)
     for change in changeList:
         change_sum += change.closure
@@ -221,14 +321,14 @@ def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: O
         for businessCode in (businessCode1, businessCode2, businessCode3):
             if not businessCode:
                 continue            
-            closure = db.query(models.Change).filter(models.Change.areaCode == areaCode) \
+            targetClosure = db.query(models.Change).filter(models.Change.areaCode == areaCode) \
                                                     .filter(models.Change.businessCode == businessCode).first()
 
             resultFutureList.append(
                 detail_sc.FutureBusiness(
                     businessCode = businessCode,
                     businessName = db.query(models.Businesss).filter(models.Businesss.businessCode == businessCode).first().businessName,
-                    businessClosure = closure.closure
+                    businessClosure = targetClosure.closure
                 )
             )
 
