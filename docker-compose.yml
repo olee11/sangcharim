@@ -3,12 +3,10 @@ services:
   nginx:
     image: nginx:latest
     container_name: sangcharim-nginx
-    platform: linux/amd64
     ports:
     - "80:80"
     volumes:
     - ./.config/nginx:/etc/nginx/conf.d
-    - ./.static:/static
     depends_on:
       - fastapi
     environment:
@@ -20,11 +18,8 @@ services:
       dockerfile: dockerfile
     container_name: sangcharim-fastapi
     command: uvicorn main:app --host 0.0.0.0 --port 8000
-    platform: linux/amd64
     env_file:
       - .env
-    volumes:
-    - ./.aws:/root/.aws
     expose:
       - "8000"
     environment:
