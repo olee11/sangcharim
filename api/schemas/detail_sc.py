@@ -49,7 +49,7 @@ class SalesSchema(BaseModel):
     sales: Sales
     day: Day
     time: Time
-    businessList: List[SalesBusiness]
+    # businessList: List[SalesBusiness]
     
 # 주 고객층
 class CustomerGenderRatio(BaseModel):
@@ -74,7 +74,7 @@ class CustomerSchema(BaseModel):
     area: area_sc.Area
     genderRatio: CustomerGenderRatio
     ageRatio: CustomerAgeRatio
-    business: List[CustomerBusiness]
+    # business: List[CustomerBusiness]
 
 # 미래
 class FutureBusiness(BaseModel):
@@ -86,4 +86,4 @@ class FutureSchema(BaseModel):
     area: area_sc.Area
     areaSituation: str
     areaClosure: float
-    business: List[FutureBusiness]
+    # business: List[FutureBusiness]

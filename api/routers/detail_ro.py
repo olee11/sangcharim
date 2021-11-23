@@ -82,10 +82,10 @@ def getSales(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Op
     `sales`         : 상권의 매출 최소, 최대, 평균\n
     `day`           : 상권의 요일별 평균 매출비율\n
     `time`          : 상권의 시간대별 평균 매출비율\n
-    `businessList`  : 선택한 업종의 정보\n
-    `businessSale`  : 업종 매출액\n
-    `businessDay`   : 업종의 요일별 매출비율\n
-    `businessTime`  : 업종의 시간대별 매출비율\n
+    _**(deprecated)** `businessList`   : 선택한 업종의 정보_\n
+    _**(deprecated)** `businessSale`  : 업종 매출액_\n
+    _**(deprecated)** `businessDay`   : 업종의 요일별 매출비율_\n
+    _**(deprecated)** `businessTime`  : 업종의 시간대별 매출비율_\n
     -> businessCode1~3가 None이면 : []\n
     -> businessCode1~3에 값이 있으면 : 만약 해당 상권에 해당 업종이 없으면 추가 되지 않음.
     """
@@ -184,7 +184,33 @@ def getSales(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Op
                         )
                     )
                 )
-    
+
+        # 리스트 구한 업종들의 전체 비율 
+        listLength = len(resultBusinessList)
+        
+        resultSales = detail_sc.Sales(
+            min = min(map(lambda x:x.businessSale, resultBusinessList)),
+            max = max(map(lambda x:x.businessSale, resultBusinessList)),
+            avg = round(sum(map(lambda x:x.businessSale, resultBusinessList)) / listLength)
+        )
+        resultDaySales = detail_sc.Day(
+            mon = round(sum(map(lambda x: x.businessDay.mon, resultBusinessList)) / listLength),
+            tue = round(sum(map(lambda x: x.businessDay.tue, resultBusinessList)) / listLength),
+            wed = round(sum(map(lambda x: x.businessDay.wed, resultBusinessList)) / listLength),
+            thu = round(sum(map(lambda x: x.businessDay.thu, resultBusinessList)) / listLength),
+            fri = round(sum(map(lambda x: x.businessDay.fri, resultBusinessList)) / listLength),
+            sat = round(sum(map(lambda x: x.businessDay.sat, resultBusinessList)) / listLength),
+            sun = round(sum(map(lambda x: x.businessDay.sun, resultBusinessList)) / listLength),
+        )
+        resultTimeSales = detail_sc.Time(
+            time0006 = round(sum(map(lambda x: x.businessTime.time0006, resultBusinessList)) / listLength),
+            time0611 = round(sum(map(lambda x: x.businessTime.time0611, resultBusinessList)) / listLength),
+            time1114 = round(sum(map(lambda x: x.businessTime.time1114, resultBusinessList)) / listLength),
+            time1417 = round(sum(map(lambda x: x.businessTime.time1417, resultBusinessList)) / listLength),
+            time1721 = round(sum(map(lambda x: x.businessTime.time1721, resultBusinessList)) / listLength),
+            time2124 = round(sum(map(lambda x: x.businessTime.time2124, resultBusinessList)) / listLength),
+        )
+        
     return detail_sc.SalesSchema(
         area = area_sc.Area(
             areaCode = area.areaCode,
@@ -193,11 +219,18 @@ def getSales(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Op
         sales = resultSales,
         day = resultDaySales,
         time = resultTimeSales,
-        businessList = resultBusinessList
+        # businessList = resultBusinessList
     )
 
-@router.get("/customer")
+@router.get("/customer", response_model=detail_sc.CustomerSchema)
 def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
+    """
+    `완료`\n
+    `area`                      : 선택한 상권 정보\n
+    `genderRatio`               : 선택한 상권의 매출 성비\n
+    `ageRatio`                  : 선택한 상권의 연령별 매출\n
+    _**(deprecated)** `businessList`   : 선택한 업종의 정보_\n
+    """
     area = db.query(models.Area).filter(models.Area.areaCode == areaCode).first()
 
     resultCustomerList: list[detail_sc.CustomerBusiness] = []
@@ -283,6 +316,17 @@ def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2:
                 )
             except:
                 continue   
+        
+        # 리스트 구한 업종들의 전체 비율 
+        listLength = len(resultCustomerList)
+        man_ratio = sum(map(lambda x: x.businessGender.male, resultCustomerList)) / listLength
+        woman_ratio = sum(map(lambda x: x.businessGender.female, resultCustomerList)) / listLength
+        age10_ratio = sum(map(lambda x: x.businessAge.age10, resultCustomerList)) / listLength
+        age20_ratio = sum(map(lambda x: x.businessAge.age20, resultCustomerList)) / listLength
+        age30_ratio = sum(map(lambda x: x.businessAge.age30, resultCustomerList)) / listLength
+        age40_ratio = sum(map(lambda x: x.businessAge.age40, resultCustomerList)) / listLength
+        age50_ratio = sum(map(lambda x: x.businessAge.age50, resultCustomerList)) / listLength
+        age60_ratio = sum(map(lambda x: x.businessAge.age60, resultCustomerList)) / listLength
 
     return detail_sc.CustomerSchema(
         area = area_sc.Area(
@@ -301,11 +345,18 @@ def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2:
             age50 = age50_ratio,
             age60 = age60_ratio            
         ),
-        business = resultCustomerList
+        # business = resultCustomerList
     )
 
 @router.get("/future", response_model=detail_sc.FutureSchema)
 def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
+    """
+    `완료`\n
+    `area` : 선택한 상권 정보\n
+    `areaSituation` : 선택한 상권의 전망 **(정체, 상권축소, 상권확장, 다이나믹)**\n
+    `areaClosure` : 선택한 상권의 폐업률\n
+    _**(deprecated)** `business`   : 선택한 업종의 정보_\n
+    """
     situationStr = { 1: "정체", 2: "상권축소", 3: "상권확장", 4: "다이나믹" }
     area = db.query(models.Area).filter(models.Area.areaCode == areaCode).first()
 
@@ -338,6 +389,9 @@ def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: O
                 )
             except:
                 continue
+        
+        # 리스트 구한 업종들의 전체 비율 
+        area_closure = sum(map(lambda x: x.businessGender.male, resultFutureList)) / len(resultFutureList)
 
     return detail_sc.FutureSchema(
         area = area_sc.Area(
@@ -346,5 +400,5 @@ def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: O
         ),
         areaSituation = situationStr[area.status],
         areaClosure = area_closure,
-        business = resultFutureList
+        # business = resultFutureList
     )
