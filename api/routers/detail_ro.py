@@ -306,6 +306,7 @@ def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2:
 
 @router.get("/future", response_model=detail_sc.FutureSchema)
 def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
+    situationStr = { 1: "정체", 2: "상권축소", 3: "상권확장", 4: "다이나믹" }
     area = db.query(models.Area).filter(models.Area.areaCode == areaCode).first()
 
     resultFutureList: list[detail_sc.FutureBusiness] = []
@@ -343,7 +344,7 @@ def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: O
             areaCode = area.areaCode,
             areaName = area.areaName,
         ),
-        areaSituation = area.status,
+        areaSituation = situationStr[area.status],
         areaClosure = area_closure,
         business = resultFutureList
     )
