@@ -86,4 +86,4 @@ class FutureSchema(BaseModel):
     area: area_sc.Area
     areaSituation: str
     areaClosure: float
-    business: List[FutureBusiness]
+    # business: List[FutureBusiness]

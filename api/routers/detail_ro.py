@@ -324,6 +324,13 @@ def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2:
 
 @router.get("/future", response_model=detail_sc.FutureSchema)
 def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
+    """
+    `완료`\n
+    `area` : 선택한 상권 정보\n
+    `areaSituation` : 선택한 상권의 전망 **(정체, 상권축소, 상권확장, 다이나믹)**\n
+    `areaClosure` : 선택한 상권의 폐업률\n
+    _**(deprecated)** `business`   : 선택한 업종의 정보_\n
+    """
     situationStr = { 1: "정체", 2: "상권축소", 3: "상권확장", 4: "다이나믹" }
     area = db.query(models.Area).filter(models.Area.areaCode == areaCode).first()
 
@@ -356,6 +363,9 @@ def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: O
                 )
             except:
                 continue
+        
+        # 리스트 구한 업종들의 전체 비율 
+        area_closure = sum(map(lambda x: x.businessGender.male, resultFutureList)) / len(resultFutureList)
 
     return detail_sc.FutureSchema(
         area = area_sc.Area(
@@ -364,5 +374,5 @@ def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: O
         ),
         areaSituation = situationStr[area.status],
         areaClosure = area_closure,
-        business = resultFutureList
+        # business = resultFutureList
     )
