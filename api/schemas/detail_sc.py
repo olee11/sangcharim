@@ -49,7 +49,7 @@ class SalesSchema(BaseModel):
     sales: Sales
     day: Day
     time: Time
-    businessList: List[SalesBusiness]
+    # businessList: List[SalesBusiness]
     
 # 주 고객층
 class CustomerGenderRatio(BaseModel):

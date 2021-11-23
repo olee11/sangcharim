@@ -82,10 +82,10 @@ def getSales(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Op
     `sales`         : 상권의 매출 최소, 최대, 평균\n
     `day`           : 상권의 요일별 평균 매출비율\n
     `time`          : 상권의 시간대별 평균 매출비율\n
-    `businessList`  : 선택한 업종의 정보\n
-    `businessSale`  : 업종 매출액\n
-    `businessDay`   : 업종의 요일별 매출비율\n
-    `businessTime`  : 업종의 시간대별 매출비율\n
+    _**(deprecated)** `businessList`   : 선택한 업종의 정보_\n
+    _**(deprecated)** `businessSale`  : 업종 매출액_\n
+    _**(deprecated)** `businessDay`   : 업종의 요일별 매출비율_\n
+    _**(deprecated)** `businessTime`  : 업종의 시간대별 매출비율_\n
     -> businessCode1~3가 None이면 : []\n
     -> businessCode1~3에 값이 있으면 : 만약 해당 상권에 해당 업종이 없으면 추가 되지 않음.
     """
@@ -184,7 +184,33 @@ def getSales(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Op
                         )
                     )
                 )
-    
+
+        # 리스트 구한 업종들의 전체 비율 
+        listLength = len(resultBusinessList)
+        
+        resultSales = detail_sc.Sales(
+            min = min(map(lambda x:x.businessSale, resultBusinessList)),
+            max = max(map(lambda x:x.businessSale, resultBusinessList)),
+            avg = round(sum(map(lambda x:x.businessSale, resultBusinessList)) / listLength)
+        )
+        resultDaySales = detail_sc.Day(
+            mon = round(sum(map(lambda x: x.businessDay.mon, resultBusinessList)) / listLength),
+            tue = round(sum(map(lambda x: x.businessDay.tue, resultBusinessList)) / listLength),
+            wed = round(sum(map(lambda x: x.businessDay.wed, resultBusinessList)) / listLength),
+            thu = round(sum(map(lambda x: x.businessDay.thu, resultBusinessList)) / listLength),
+            fri = round(sum(map(lambda x: x.businessDay.fri, resultBusinessList)) / listLength),
+            sat = round(sum(map(lambda x: x.businessDay.sat, resultBusinessList)) / listLength),
+            sun = round(sum(map(lambda x: x.businessDay.sun, resultBusinessList)) / listLength),
+        )
+        resultTimeSales = detail_sc.Time(
+            time0006 = round(sum(map(lambda x: x.businessTime.time0006, resultBusinessList)) / listLength),
+            time0611 = round(sum(map(lambda x: x.businessTime.time0611, resultBusinessList)) / listLength),
+            time1114 = round(sum(map(lambda x: x.businessTime.time1114, resultBusinessList)) / listLength),
+            time1417 = round(sum(map(lambda x: x.businessTime.time1417, resultBusinessList)) / listLength),
+            time1721 = round(sum(map(lambda x: x.businessTime.time1721, resultBusinessList)) / listLength),
+            time2124 = round(sum(map(lambda x: x.businessTime.time2124, resultBusinessList)) / listLength),
+        )
+        
     return detail_sc.SalesSchema(
         area = area_sc.Area(
             areaCode = area.areaCode,
@@ -193,7 +219,7 @@ def getSales(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Op
         sales = resultSales,
         day = resultDaySales,
         time = resultTimeSales,
-        businessList = resultBusinessList
+        # businessList = resultBusinessList
     )
 
 @router.get("/customer", response_model=detail_sc.CustomerSchema)
