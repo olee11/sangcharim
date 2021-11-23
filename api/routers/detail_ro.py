@@ -391,7 +391,7 @@ def getFuture(areaCode: int, businessCode1: Optional[int]=None, businessCode2: O
                 continue
         
         # 리스트 구한 업종들의 전체 비율 
-        area_closure = sum(map(lambda x: x.businessGender.male, resultFutureList)) / len(resultFutureList)
+        area_closure = sum(map(lambda x: x.businessClosure, resultFutureList)) / len(resultFutureList)
 
     return detail_sc.FutureSchema(
         area = area_sc.Area(
