@@ -196,8 +196,15 @@ def getSales(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Op
         businessList = resultBusinessList
     )
 
-@router.get("/customer")
+@router.get("/customer", response_model=detail_sc.CustomerSchema)
 def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2: Optional[int]=None, businessCode3: Optional[int]=None, db: Session=Depends(get_db)):
+    """
+    `완료`\n
+    `area`                      : 선택한 상권 정보\n
+    `genderRatio`               : 선택한 상권의 매출 성비\n
+    `ageRatio`                  : 선택한 상권의 연령별 매출\n
+    _**(deprecated)** `businessList`   : 선택한 업종의 정보_\n
+    """
     area = db.query(models.Area).filter(models.Area.areaCode == areaCode).first()
 
     resultCustomerList: list[detail_sc.CustomerBusiness] = []
@@ -283,6 +290,17 @@ def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2:
                 )
             except:
                 continue   
+        
+        # 리스트 구한 업종들의 전체 비율 
+        listLength = len(resultCustomerList)
+        man_ratio = sum(map(lambda x: x.businessGender.male, resultCustomerList)) / listLength
+        woman_ratio = sum(map(lambda x: x.businessGender.female, resultCustomerList)) / listLength
+        age10_ratio = sum(map(lambda x: x.businessAge.age10, resultCustomerList)) / listLength
+        age20_ratio = sum(map(lambda x: x.businessAge.age20, resultCustomerList)) / listLength
+        age30_ratio = sum(map(lambda x: x.businessAge.age30, resultCustomerList)) / listLength
+        age40_ratio = sum(map(lambda x: x.businessAge.age40, resultCustomerList)) / listLength
+        age50_ratio = sum(map(lambda x: x.businessAge.age50, resultCustomerList)) / listLength
+        age60_ratio = sum(map(lambda x: x.businessAge.age60, resultCustomerList)) / listLength
 
     return detail_sc.CustomerSchema(
         area = area_sc.Area(
@@ -301,7 +319,7 @@ def getCustomer(areaCode: int, businessCode1: Optional[int]=None, businessCode2:
             age50 = age50_ratio,
             age60 = age60_ratio            
         ),
-        business = resultCustomerList
+        # business = resultCustomerList
     )
 
 @router.get("/future", response_model=detail_sc.FutureSchema)

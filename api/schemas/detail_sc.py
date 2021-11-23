@@ -74,7 +74,7 @@ class CustomerSchema(BaseModel):
     area: area_sc.Area
     genderRatio: CustomerGenderRatio
     ageRatio: CustomerAgeRatio
-    business: List[CustomerBusiness]
+    # business: List[CustomerBusiness]
 
 # 미래
 class FutureBusiness(BaseModel):
