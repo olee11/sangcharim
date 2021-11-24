@@ -30,8 +30,9 @@ def getFarMap(areaCode: Optional[int]=None, businessCode1: Optional[int]=None, b
     """
     # areaCode가 없으면 좌표 = 태릉입구
     # areaCode가 있으면 좌표 = area 좌표
-    focusLat: float = 37.617636
-    focusLong: float = 127.075621
+    focusLat: float = 37.638083
+    focusLong: float = 127.071128
+
     if areaCode:
         area = db.query(models.Area).filter(models.Area.areaCode == areaCode).first()
         if area:
