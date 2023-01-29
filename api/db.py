@@ -1,10 +1,13 @@
-from api.database import SessionLocal
-from api import models
+from database import SessionLocal
 import requests, xmltodict, json, math
-from api.models import *
+from models import *
 from sqlalchemy import select
+from dotenv import load_dotenv
+import models
 import os
 import csv
+
+load_dotenv()
 
 db = SessionLocal()
 
@@ -294,9 +297,9 @@ def create_store():
 
 
 if __name__ == '__main__':
-    # create_area()
+    create_area()
     # add_status()
     # create_business()
     # create_change()
     # create_sales()
-    create_store()
+    # create_store()
